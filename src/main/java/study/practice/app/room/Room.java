@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import study.practice.domain.model.ReservableRoom;
-import study.practice.domain.service.RoomService;
+import study.practice.domain.service.room.RoomService;
 
 import java.time.LocalDate;
 import java.util.List;
