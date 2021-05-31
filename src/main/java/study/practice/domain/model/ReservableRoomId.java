@@ -16,7 +16,7 @@ import java.util.Objects;
 public class ReservableRoomId implements Serializable {
 
     @Column(name = "room_id")
-    private Long roomId; //@MapsId("room_id")로 매핑
+    private Integer roomId; //@MapsId("room_id")로 매핑
 
     @Column(name = "reserved_date")
     private LocalDate reservedDate;

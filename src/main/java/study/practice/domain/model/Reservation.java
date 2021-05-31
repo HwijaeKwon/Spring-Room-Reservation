@@ -14,17 +14,17 @@ import java.time.LocalTime;
 @Getter
 public class Reservation implements Serializable {
 
-    @Id
+    @Id @Column(name = "reservation_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long reservationId;
+    private Integer reservationId;
 
     private LocalTime startTime;
     private LocalTime endTime;
 
     @ManyToOne
     @JoinColumns({
-            @JoinColumn(name = "room_id"),
-            @JoinColumn(name = "reserved_date")
+            @JoinColumn(name = "reserved_date"),
+            @JoinColumn(name = "room_id")
     })
     private ReservableRoom reservableRoom;
 

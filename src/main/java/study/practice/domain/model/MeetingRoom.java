@@ -15,7 +15,7 @@ public class MeetingRoom implements Serializable {
 
     @Id @Column(name = "room_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long roomId;
+    private Integer roomId;
 
     private String roomName;
 }
