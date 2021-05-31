@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "reservation")
@@ -31,4 +32,17 @@ public class Reservation implements Serializable {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public boolean overlap(Reservation target) {
+        if (!Objects.equals(reservableRoom.getReservableRoomId(),
+                target.reservableRoom.getReservableRoomId())) {
+            return false;
+        }
+
+        if(startTime.equals(target.startTime) && endTime.equals(target.endTime)) {
+            return true;
+        }
+
+        return target.endTime.isAfter(startTime) && endTime.isAfter(target.startTime);
+    }
 }
