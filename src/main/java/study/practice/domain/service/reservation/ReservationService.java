@@ -27,7 +27,10 @@ public class ReservationService {
     public Reservation reserve(Reservation reservation) {
         ReservableRoomId reservableRoomId = reservation.getReservableRoom().getReservableRoomId();
 
-        if(reservableRoomRepository.existsById(reservableRoomId)) {
+        //Pessimistic write lock
+        ReservableRoom reservableRoom = reservableRoomRepository.findOneForUpdateByReservableRoomId(reservableRoomId);
+
+        if(reservableRoom == null) {
             throw new UnavailableReservationException("선택한 날짜와 회의실로 예약할 수 없습니다");
         }
 
