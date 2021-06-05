@@ -2,6 +2,8 @@ package study.practice.app.reservation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,6 +14,7 @@ import study.practice.domain.service.reservation.AlreadyReservedException;
 import study.practice.domain.service.reservation.ReservationService;
 import study.practice.domain.service.reservation.UnavailableReservationException;
 import study.practice.domain.service.room.RoomService;
+import study.practice.domain.service.user.ReservationUserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -52,19 +55,16 @@ public class ReservationsController {
         model.addAttribute("reservations", reservations);
         model.addAttribute("timeList", timeList);
 
-        //예약 사용자로 사용할 더비유저를 만든다. 나중에 스프링 시큐리티를 사용해 인증된 사용자로 대체한다
-        model.addAttribute("user", dummyUser());
-
         return "reservation/reserveForm";
     }
 
     private User dummyUser() {
-        User user = new User("LastName FirstName", "FirstName", "LastName", "PassWord", RoleName.USER);
-        return user;
+        return new User("LastName FirstName", "FirstName", "LastName", "PassWord", RoleName.USER);
     }
 
     @RequestMapping(method = RequestMethod.POST)
     String reserve(@Validated ReservationForm form, BindingResult bindingResult,
+                   @AuthenticationPrincipal ReservationUserDetails userDetails,
                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("date") LocalDate date,
                    @PathVariable("roomId") Integer roomId,
                    Model model) {
@@ -73,7 +73,8 @@ public class ReservationsController {
         }
 
         ReservableRoom reservableRoom = new ReservableRoom(new ReservableRoomId(roomId, date), roomService.findMeetingRoom(roomId));
-        Reservation reservation = new Reservation(form.getStartTime(), form.getEndTime(), reservableRoom, dummyUser());
+        Reservation reservation = new Reservation(form.getStartTime(), form.getEndTime(), reservableRoom, userDetails.getUser());
+
         try {
             reservationService.reserve(reservation);
         } catch (UnavailableReservationException | AlreadyReservedException e) {
@@ -85,14 +86,15 @@ public class ReservationsController {
     }
 
     @RequestMapping(method = RequestMethod.POST, params = "cancel")
-    String cancel(@RequestParam("reservationId") Integer reservationId,
+    String cancel(@AuthenticationPrincipal ReservationUserDetails userDetails,
+                  @RequestParam("reservationId") Integer reservationId,
                   @PathVariable("roomId") Integer roomId,
                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("date") LocalDate date,
                   Model model) {
-        User user = dummyUser();
+        User user = userDetails.getUser();
         try {
             reservationService.cancel(reservationId, user);
-        } catch (IllegalStateException e) {
+        } catch (AccessDeniedException e) {
             model.addAttribute("error", e.getMessage());
             return reserveForm(date, roomId, model);
         }
