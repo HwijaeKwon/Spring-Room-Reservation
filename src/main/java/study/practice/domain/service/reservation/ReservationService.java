@@ -2,6 +2,8 @@ package study.practice.domain.service.reservation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.practice.domain.model.*;
@@ -47,13 +49,14 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public void cancel(Integer reservationId, User requestUser) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new IllegalStateException("예약을 찾을 수 없습니다"));
-        if (RoleName.ADMIN != requestUser.getRoleName()
-                && !Objects.equals(reservation.getUser().getUserId(), requestUser.getUserId())) {
-            throw new AccessDeniedException("예약을 취소할 수 없습니다");
-        }
+    @PreAuthorize("hasRole('ADMIN')"
+            + " or #reservation.user.userId == principal.user.userId")
+    public void cancel(@P("reservation") Reservation reservation) {
         reservationRepository.delete(reservation);
+    }
+
+    public Reservation findOne(Integer reservationId) {
+        return reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalStateException("Reservation not found"));
     }
 }
