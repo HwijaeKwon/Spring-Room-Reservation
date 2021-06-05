@@ -45,4 +45,11 @@ public class Reservation implements Serializable {
 
         return target.endTime.isAfter(startTime) && endTime.isAfter(target.startTime);
     }
+
+    public Reservation(LocalTime startTime, LocalTime endTime, ReservableRoom reservableRoom, User user) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.reservableRoom = reservableRoom;
+        this.user = user;
+    }
 }
