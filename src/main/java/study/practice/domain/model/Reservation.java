@@ -2,6 +2,7 @@ package study.practice.domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.hibernate.annotations.Fetch;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -22,14 +23,14 @@ public class Reservation implements Serializable {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
             @JoinColumn(name = "reserved_date"),
             @JoinColumn(name = "room_id")
     })
     private ReservableRoom reservableRoom;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

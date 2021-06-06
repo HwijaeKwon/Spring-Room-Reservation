@@ -18,7 +18,7 @@ public class ReservableRoom implements Serializable {
     private ReservableRoomId reservableRoomId;
 
     @MapsId("roomId") //ReservableRoomId.roomId와 매핑
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", insertable = false, updatable = false)
     private MeetingRoom meetingRoom;
 }
